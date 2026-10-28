@@ -1,0 +1,19 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Default Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}"
+    },
+    {
+      "name": "tsan",
+      "displayName": "Debug with Thread Sanitizer",
+      "inherits": "default",
+      "cacheVariables": {
+        "ENABLE_TSAN": "ON"
+      }
+    }
+  ]
+}
