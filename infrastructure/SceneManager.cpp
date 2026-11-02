@@ -11,8 +11,10 @@
 #include <gp_Vec.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Dir.hxx>
+#include "gp_Quaternion.hxx"
 
 #include "ui/OcctQOpenGLWidgetViewer.hpp"
+#include "AIS_InteractiveContext.hxx"
 
 // Вспомогательная функция для перемещения формы в пространстве
 TopoDS_Shape MoveShape(const TopoDS_Shape& aShape, double dx, double dy, double dz) {
@@ -97,21 +99,20 @@ SceneManager::SceneManager(OcctQOpenGLWidgetViewer* viewer) : m_viewer(viewer) {
 void SceneManager::transformShape(double x, double y, double z, double angleX, double angleY, double angleZ) {
     ModelEntity& currModel = m_shapes.back();
 
-    m_viewer->Context()->Remove(currModel.aisShape, false); 
-    gp_Ax1 axis{
-        gp_Pnt(0, 0, 0),   // точка, через которую проходит ось
-        gp_Dir(1, 0, 0) };  // ось X
-
     gp_Trsf move, rotate, result;
-
     move.SetTranslation(gp_Vec(x, y, z));
-    rotate.SetRotation(gp_Ax1(gp_Pnt(0,0,0), gp_Dir(1,0,0)), angleX * M_PI / 180);
-    rotate.SetRotation(gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,1,0)), angleY * M_PI / 180);
-    rotate.SetRotation(gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,0,1)), angleZ * M_PI / 180);
+
+    gp_Trsf rot1, rot2, rot3;
+    rot1.SetRotation(gp_Ax1(gp_Pnt(0,0,0), gp_Dir(1,0,0)), angleX * M_PI / 180); 
+    rot2.SetRotation(gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,1,0)), angleY * M_PI / 180); 
+    rot3.SetRotation(gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,0,1)), angleZ * M_PI / 180); 
+    rotate = rot1;
+    rotate.Multiply(rot2);
+    rotate.Multiply(rot3);
 
     result = move * rotate;   
     currModel.trsf = result;
 
-    currModel.aisShape = new AIS_Shape(currModel.shape.Located(TopLoc_Location(currModel.trsf)));
-    m_viewer->Context()->Display(currModel.aisShape, AIS_Shaded, 0, Standard_True);
+    m_viewer->Context()->SetLocation(currModel.aisShape, currModel.trsf);
+    m_viewer->Context()->Redisplay(currModel.aisShape, Standard_True);
 }
