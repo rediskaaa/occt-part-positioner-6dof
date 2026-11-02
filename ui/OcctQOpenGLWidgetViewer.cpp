@@ -24,6 +24,8 @@
 #include <Message.hxx>
 #include <OpenGl_GraphicDriver.hxx>
 
+#include "infrastructure/SceneManager.hpp"
+
 // ================================================================
 // Function : OcctQOpenGLWidgetViewer
 // ================================================================
@@ -344,15 +346,7 @@ void OcctQOpenGLWidgetViewer::initializeGL()
     // handle raw WM_INPUT events to catch input from  WNT_HIDSpaceMouse (HID_USAGE_GENERIC_MULTI_AXIS_CONTROLLER);
     // the same could be done also done for tracking precise mouse input (HID_USAGE_GENERIC_MOUSE RIM_TYPEMOUSE)
     if (OcctQtTools::qtRegisterRawInput(aNativeWin))
-      QCoreApplication::instance()->installNativeEventFilter(this);
-
-    // auxiliary objects
-    myContext->Display(myViewCube, 0, 0, false);
-
-    // dummy shape for testing
-    TopoDS_Shape      aBox   = BRepPrimAPI_MakeBox(100.0, 50.0, 90.0).Shape();
-    Handle(AIS_Shape) aShape = new AIS_Shape(aBox);
-    myContext->Display(aShape, AIS_Shaded, 0, false);
+      QCoreApplication::instance()->installNativeEventFilter(this);     
   }
 }
 

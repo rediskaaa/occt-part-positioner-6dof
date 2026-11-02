@@ -14,15 +14,16 @@ add_executable(${PROJECT_NAME} main.cpp
     core/TransformController.cpp
     ui/OcctQOpenGLWidgetViewer.hpp
     ui/OcctQOpenGLWidgetViewer.cpp
-    infrastructure/OcctViewerManager.hpp
-    infrastructure/OcctViewerManager.cpp
+    infrastructure/SceneManager.hpp
+    infrastructure/SceneManager.cpp
     ui/occt-qt-tools/OcctGlTools.h
     ui/occt-qt-tools/OcctGlTools.cpp
     ui/occt-qt-tools/OcctQtTools.h
     ui/occt-qt-tools/OcctQtTools.cpp
     ui/MainWindow.cpp
     ui/MainWindow.hpp
-    ui/MainWindow.ui)
+    ui/MainWindow.ui
+    core/ModelEntity.hpp)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

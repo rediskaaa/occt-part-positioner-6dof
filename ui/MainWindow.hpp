@@ -1,5 +1,8 @@
 #pragma once
 #include <QMainWindow>
+#include <memory>
+
+class SceneManager;
 
 namespace Ui {
 	class MainWindow;
@@ -11,5 +14,7 @@ public:
 	explicit MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
 private:
+	void spinBoxChanged();
 	Ui::MainWindow* ui;
+	std::unique_ptr<SceneManager> m_sceneManager;
 };

@@ -47,7 +47,7 @@ public:
   virtual QSize minimumSizeHint() const override { return QSize(200, 200); }
 
   //! Default widget size.
-  virtual QSize sizeHint() const override { return QSize(720, 480); }
+  virtual QSize sizeHint() const override { return QSize(620, 480); }
 
 public:
 #if (OCC_VERSION_HEX >= 0x070700)
