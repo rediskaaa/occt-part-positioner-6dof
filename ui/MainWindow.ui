@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>899</width>
-    <height>600</height>
+    <height>573</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -229,8 +229,19 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File...</string>
+    </property>
+    <addaction name="actionImport_STEP"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionImport_STEP">
+   <property name="text">
+    <string>Import STEP</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

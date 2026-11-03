@@ -15,6 +15,7 @@ public:
 	~MainWindow();
 private:
 	void spinBoxChanged();
+	void onLoadButtonClicked();
 	Ui::MainWindow* ui;
 	std::unique_ptr<SceneManager> m_sceneManager;
 };

@@ -7,6 +7,9 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+find_package(OpenCASCADE REQUIRED)
+find_package(Qt5 REQUIRED COMPONENTS Widgets Core OpenGL)
+
 add_executable(${PROJECT_NAME} main.cpp
     core/ShapeModel.hpp
     core/ShapeModel.cpp
@@ -23,39 +26,30 @@ add_executable(${PROJECT_NAME} main.cpp
     ui/MainWindow.cpp
     ui/MainWindow.hpp
     ui/MainWindow.ui
-    core/ModelEntity.hpp)
+    core/ModelEntity.hpp
+    infrastructure/StepImporter.hpp
+    infrastructure/StepImporter.cpp)
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-option(ENABLE_TSAN "Enable Thread Sanitizer" OFF)
-
-find_package(Qt5 REQUIRED COMPONENTS Widgets Core OpenGL)
-# ==========================================
-# РУЧНАЯ НАСТРОЙКА OpenCASCADE (для Ubuntu)
-# ==========================================
-# 1. Указываем путь к заголовочным файлам (.hxx)
-include_directories(/usr/include/opencascade)
-
-# 2. Список библиотек OCCT. 
-# CMake сам найдёт их в /usr/lib/x86_64-linux-gnu/, так как это системная папка.
-# Добавь сюда TKSTEP, TKXCAF и т.д., если твой проект работает с импортом/экспортом файлов
-set(OpenCASCADE_LIBRARIES
+set(OpenCASCADE_USED_LIBRARIES
     TKernel TKMath 
     TKG2d TKG3d TKGeomBase TKBRep TKGeomAlgo TKTopAlgo 
     TKPrim TKBO TKBool TKHLR TKFillet TKOffset TKFeat TKMesh 
-    TKService TKV3d TKOpenGl
+    TKService TKV3d TKOpenGl TKDESTEP 
 )
-# ==========================================
-#find_package(OpenCASCADE REQUIRED COMPONENTS ModelingAlgorithms ModelingData FoundationClasses)
-#find_package(OpenCASCADE REQUIRED)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${OpenCASCADE_INCLUDE_DIR}
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	Qt5::Core
 	Qt5::Widgets
 	Qt5::OpenGL
-	${OpenCASCADE_LIBRARIES}
+	${OpenCASCADE_USED_LIBRARIES}
 )
+
+option(ENABLE_TSAN "Enable Thread Sanitizer" OFF)
 
 if(ENABLE_TSAN)
     message(STATUS "Thread Sanitizer ENABLED")

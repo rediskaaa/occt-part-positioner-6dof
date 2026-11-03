@@ -16,6 +16,7 @@
 #include "ui/OcctQOpenGLWidgetViewer.hpp"
 #include "AIS_InteractiveContext.hxx"
 
+
 // Вспомогательная функция для перемещения формы в пространстве
 TopoDS_Shape MoveShape(const TopoDS_Shape& aShape, double dx, double dy, double dz) {
     gp_Trsf aTrsf;
@@ -25,22 +26,18 @@ TopoDS_Shape MoveShape(const TopoDS_Shape& aShape, double dx, double dy, double 
 
 TopoDS_Shape CreateGeometricCat() {
     // 1. ТУЛОВИЩЕ (основа)
-    // Создаем коробку шириной 40, длиной 70, высотой 50
     TopoDS_Shape aBody = BRepPrimAPI_MakeBox(40.0, 70.0, 40.0).Shape();
     // Центрируем туловище относительно оси X
     aBody = MoveShape(aBody, -20.0, -35.0, 0.0);
 
     // 2. ГОЛОВА
-    // Куб 35x35x35
     TopoDS_Shape aHead = BRepPrimAPI_MakeBox(35.0, 35.0, 35.0).Shape();
     // Смещаем голову наверх и вперед (к передней части туловища)
     aHead = MoveShape(aHead, -17.5, 20.0, 35.0);
 
     // 3. УШИ (левое и правое)
-    // Делаем уши из маленьких коробочек
     TopoDS_Shape aEarLeft = BRepPrimAPI_MakeBox(10.0, 8.0, 15.0).Shape();
     aEarLeft = MoveShape(aEarLeft, -12.0, 25.0, 70.0);
-
     TopoDS_Shape aEarRight = BRepPrimAPI_MakeBox(10.0, 8.0, 15.0).Shape();
     aEarRight = MoveShape(aEarRight, 2.0, 25.0, 70.0);
 
@@ -85,19 +82,24 @@ TopoDS_Shape CreateGeometricCat() {
 }
 
 SceneManager::SceneManager(OcctQOpenGLWidgetViewer* viewer) : m_viewer(viewer) {
-    //TopoDS_Shape      aBox   = BRepPrimAPI_MakeBox(100.0, 50.0, 90.0).Shape();
+    addShape(CreateGeometricCat());
+}
+
+uint64_t SceneManager::addShape(const TopoDS_Shape& shape) {
     ModelEntity model;
-    gp_Trsf trsf;
-    trsf.SetTranslation(gp_Vec(50, 100, 50));
-    model.trsf.SetTranslation(gp_Vec(50, 100, 50)); // = trsf;
-    model.shape = CreateGeometricCat();
+    model.id = m_nextId++;
+    model.shape = shape;
     model.aisShape = new AIS_Shape(model.shape);
     m_viewer->Context()->Display(model.aisShape, AIS_Shaded, 0, Standard_True);
-    m_shapes.push_back(model);
+
+    m_shapes.emplace(model.id, std::move(model));  
+
+    return model.id;
 }
 
 void SceneManager::transformShape(double x, double y, double z, double angleX, double angleY, double angleZ) {
-    ModelEntity& currModel = m_shapes.back();
+    auto it = m_shapes.find(m_nextId - 1);
+    auto currModel = ((it != m_shapes.end()) ? &it->second : NULL);
 
     gp_Trsf move, rotate, result;
     move.SetTranslation(gp_Vec(x, y, z));
@@ -106,13 +108,14 @@ void SceneManager::transformShape(double x, double y, double z, double angleX, d
     rot1.SetRotation(gp_Ax1(gp_Pnt(0,0,0), gp_Dir(1,0,0)), angleX * M_PI / 180); 
     rot2.SetRotation(gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,1,0)), angleY * M_PI / 180); 
     rot3.SetRotation(gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,0,1)), angleZ * M_PI / 180); 
+
     rotate = rot1;
     rotate.Multiply(rot2);
     rotate.Multiply(rot3);
 
     result = move * rotate;   
-    currModel.trsf = result;
+    currModel->trsf = result;
 
-    m_viewer->Context()->SetLocation(currModel.aisShape, currModel.trsf);
-    m_viewer->Context()->Redisplay(currModel.aisShape, Standard_True);
+    m_viewer->Context()->SetLocation(currModel->aisShape, currModel->trsf);
+    m_viewer->Context()->Redisplay(currModel->aisShape, Standard_True);
 }
