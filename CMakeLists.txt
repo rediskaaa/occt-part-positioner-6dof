@@ -49,8 +49,14 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	${OpenCASCADE_USED_LIBRARIES}
 )
 
-option(ENABLE_TSAN "Enable Thread Sanitizer" OFF)
+option(ENABLE_ASAN "Enable Address Sanitizer" OFF)
+if(ENABLE_ASAN)
+    target_compile_options(${PROJECT_NAME} PRIVATE -fsanitize=address -g -O1)
+    target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address)
+endif()
 
+
+option(ENABLE_TSAN "Enable Thread Sanitizer" OFF)
 if(ENABLE_TSAN)
     message(STATUS "Thread Sanitizer ENABLED")
     # Флаги компиляции и линковки для TSan

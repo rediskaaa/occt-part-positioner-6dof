@@ -3,7 +3,6 @@
 #include "BRepPrimAPI_MakeBox.hxx"
 #include "AIS_Shape.hxx"
 #include "TopoDS_Shape.hxx"
-#include <BRepPrimAPI_MakeBox.hxx>
 #include <BRepPrimAPI_MakeCylinder.hxx>
 #include <BRepBuilderAPI_Transform.hxx>
 #include <BRepAlgoAPI_Fuse.hxx>
@@ -100,6 +99,7 @@ uint64_t SceneManager::addShape(const TopoDS_Shape& shape) {
 void SceneManager::transformShape(double x, double y, double z, double angleX, double angleY, double angleZ) {
     auto it = m_shapes.find(m_nextId - 1);
     auto currModel = ((it != m_shapes.end()) ? &it->second : NULL);
+    if (!currModel) return;
 
     gp_Trsf move, rotate, result;
     move.SetTranslation(gp_Vec(x, y, z));
